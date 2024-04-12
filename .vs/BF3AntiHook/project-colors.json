@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "3f45d71d-54ec-44a4-a35b-20e809d04039": {
+      "ProjectGuid": "3f45d71d-54ec-44a4-a35b-20e809d04039",
+      "DisplayName": "BF3AntiHook",
+      "ColorIndex": 0
+    }
+  },
+  "NextColorIndex": 1
+}

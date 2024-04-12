@@ -1,0 +1,7 @@
+D:\Proyectos\BF3AntiHook\ConsoleApp1\bin\Debug\ConsoleApp1.exe.config
+D:\Proyectos\BF3AntiHook\ConsoleApp1\bin\Debug\ConsoleApp1.exe
+D:\Proyectos\BF3AntiHook\ConsoleApp1\bin\Debug\ConsoleApp1.pdb
+D:\Proyectos\BF3AntiHook\ConsoleApp1\obj\Debug\ConsoleApp1.csproj.CoreCompileInputs.cache
+D:\Proyectos\BF3AntiHook\ConsoleApp1\obj\Debug\ConsoleApp1.exe
+D:\Proyectos\BF3AntiHook\ConsoleApp1\obj\Debug\ConsoleApp1.pdb
+D:\Proyectos\BF3AntiHook\ConsoleApp1\obj\Debug\ConsoleApp1.csprojAssemblyReference.cache
