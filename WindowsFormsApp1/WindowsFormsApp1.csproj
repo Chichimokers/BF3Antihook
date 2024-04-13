@@ -77,6 +77,8 @@
     <Compile Include="Antihookclient\Login.cs" />
     <Compile Include="Antihookclient\Mensaje.cs" />
     <Compile Include="Antihookclient\Servers.cs" />
+    <Compile Include="ConfigFile.cs" />
+    <Compile Include="Configuration.cs" />
     <Compile Include="Controles\UserControl1.cs">
       <SubType>UserControl</SubType>
     </Compile>

@@ -25,6 +25,12 @@ namespace BF3AntiHook.BF3AntiHook
 
         public event InfoC evento;
 
+        public event Playerconnected PlayerConnecte;
+
+        public List<User> usuariosactivos;
+
+        public delegate void Playerconnected(User real,bool connect);
+
         public List<string> tokens;
 
         IPEndPoint ipEndPoint; 
@@ -33,6 +39,7 @@ namespace BF3AntiHook.BF3AntiHook
 
             evento = e;
             tokens = new List<string>();
+            usuariosactivos = new List<User>();
             //Instanciando el puerto y socket y lo demas 
             this.port = port;
             this.ipEndPoint = new IPEndPoint(IPAddress.Any, port); 
@@ -89,137 +96,212 @@ namespace BF3AntiHook.BF3AntiHook
         }
         void  ReceiveCompleted(object sender, SocketAsyncEventArgs e)
         {
-            if (e.BytesTransferred > 0 && e.SocketError == SocketError.Success)
+            try
             {
-                // Procesar los datos recibidos
-                var receivedData = Encoding.UTF8.GetString(e.Buffer, e.Offset, e.BytesTransferred).Split('\n');
 
-                foreach (var aasd in receivedData)
+                if (e.BytesTransferred > 0 && e.SocketError == SocketError.Success)
                 {
-                    Mensaje person = JsonConvert.DeserializeObject<Mensaje>(aasd);
 
-                    if (person.Tipo == "GetServers")
+
+                    // Procesar los datos recibidos
+                    var receivedData = Encoding.UTF8.GetString(e.Buffer, e.Offset, e.BytesTransferred).Split('\n');
+
+                    foreach (var aasd in receivedData)
                     {
+                        Mensaje person = JsonConvert.DeserializeObject<Mensaje>(aasd);
 
-                        Info("Se recibio una peticion GetServers desde el ip :" + e.RemoteEndPoint.ToString());
-
-                        GetServers peticion = JsonConvert.DeserializeObject<GetServers>(aasd);
-                        foreach (var fa in tokens)
+                        if (person.version == "1.0.0")
                         {
-                            if (peticion.token == fa)
+                            if (person.Tipo == "GetServers")
                             {
 
-                                Info("Se le envio la lista de servidores a esta ip correctamente:" + e.RemoteEndPoint.ToString());
+                                Info("Se recibio una peticion GetServers desde el ip :" + e.RemoteEndPoint.ToString());
 
-                                List<Servers> servidores = database.GetServers();
+                                GetServers peticion = JsonConvert.DeserializeObject<GetServers>(aasd);
 
-                                GetServers respesta = new GetServers();
-                                respesta.servidres = servidores;
-                                respesta.token = peticion.token;
+                                foreach (var fa in tokens)
+                                {
+                                    if (peticion.token == fa)
+                                    {
 
-                                string serialize = JsonConvert.SerializeObject(respesta);
+                                        Info("Se le envio la lista de servidores a esta ip correctamente:" + e.RemoteEndPoint.ToString());
+
+                                        List<Servers> servidores = database.GetServers();
+
+                                        GetServers respesta = new GetServers();
+
+                                        respesta.Tipo = "GetServers";
+                                        respesta.servidres = servidores;
+                                        respesta.token = peticion.token;
+
+                                        string serialize = JsonConvert.SerializeObject(respesta);
+                                        byte[] buffer = Encoding.UTF8.GetBytes(serialize);
+                                        var a = e.AcceptSocket.SendAsync(new ArraySegment<byte>(buffer), SocketFlags.None);
+                                        a.ContinueWith(t =>
+                                        {
+                                            if (t.IsFaulted || t.IsCanceled)
+                                            {
+                                                // Manejar la desconexión aquí
+                                                Info("Error al enviar datos al cliente: " + t.Exception.Message);
+                                                e.AcceptSocket.Close();
+                                            }
+                                        });
+                                    }
+
+                                }
+                            }
+
+                            if (person.Tipo == "Login")
+                            {
+
+                                List<User> usuarios = database.GetUsers();
+
+                                Login userlog = JsonConvert.DeserializeObject<Login>(aasd);
+
+                                Info("Se recibio una peticion Login desde el ip :" + e.RemoteEndPoint.ToString());
+
+                                Login respuesta = new Login();
+
+                                respuesta.Tipo = "Login";
+
+
+                                respuesta.token = "null";
+                                foreach (var recorrido in usuarios)
+                                {
+
+
+                                    if (recorrido.Username == userlog.User)
+                                    {
+
+
+                                        string has = PasswordHasher.HashPassword(userlog.password).ToLower();
+                                        string x = recorrido.Password.Trim();
+                                        string y = has.Trim();
+                                        if (x == y)
+                                        {
+
+
+                                            respuesta.token = GenerarToken();
+
+                                            respuesta.AuthToken = recorrido.AutToken;
+
+
+                                            break;
+
+                                        }
+
+                                    }
+                                }
+
+                                if (respuesta.token != "null")
+                                {
+                                    Info("Se logueo correctamente :" + e.RemoteEndPoint.ToString());
+
+
+                                    User usaurio = new User();
+
+                                    usaurio.IP = e.RemoteEndPoint.ToString();
+
+                                    usaurio.Username = userlog.User;
+
+                                    usaurio.Password = userlog.password;
+
+                                    usuariosactivos.Add(usaurio);
+
+                                    Connec(usaurio, true);
+                                }
+                                else
+                                {
+                                    Info("Error al loguerse desde  :" + e.RemoteEndPoint.ToString());
+
+                                }
+                                string serialize = JsonConvert.SerializeObject(respuesta);
                                 byte[] buffer = Encoding.UTF8.GetBytes(serialize);
                                 var a = e.AcceptSocket.SendAsync(new ArraySegment<byte>(buffer), SocketFlags.None);
                                 a.ContinueWith(t =>
                                 {
                                     if (t.IsFaulted || t.IsCanceled)
                                     {
-                                    // Manejar la desconexión aquí
-                                    Info("Error al enviar datos al cliente: " + t.Exception.Message);
+                                        // Manejar la desconexión aquí
+                                        Info("Error al enviar datos al cliente: " + t.Exception.Message);
                                         e.AcceptSocket.Close();
                                     }
                                 });
-                            }
-
-                        }
-
-                    }
-
-
-                    if (person.Tipo == "Login")
-                    {
-
-                        List<User> usuarios = database.GetUsers();
-
-
-                        Login userlog = JsonConvert.DeserializeObject<Login>(aasd);
-
-                        Info("Se recibio una peticion Login desde el ip :" + e.RemoteEndPoint.ToString());
-
-                        Login respuesta = new Login();
-
-                        respuesta.Tipo = "Login";
-
-
-                        respuesta.token = "null";
-                        foreach (var recorrido in usuarios)
-                        {
-
-
-                            if (recorrido.Username == userlog.User)
-                            {
-
-
-                                string has = PasswordHasher.HashPassword(userlog.password).ToLower();
-                                string x = recorrido.Password.Trim();
-                                string y = has.Trim();
-                                if (x == y)
-                                {
-
-
-                                    respuesta.token = GenerarToken();
-                                    respuesta.AuthToken = recorrido.AutToken;
-                                    break;
-
-                                }
 
                             }
-                        }
-
-                        if (respuesta.token != "null")
-                        {
-                            Info("Se logueo correctamente :" + e.RemoteEndPoint.ToString());
                         }
                         else
                         {
-                            Info("Error al loguerse desde  :" + e.RemoteEndPoint.ToString());
-                        }
-                        string serialize = JsonConvert.SerializeObject(respuesta);
-                        byte[] buffer = Encoding.UTF8.GetBytes(serialize);
-                        var a = e.AcceptSocket.SendAsync(new ArraySegment<byte>(buffer), SocketFlags.None);
-                        a.ContinueWith(t =>
-                        {
-                            if (t.IsFaulted || t.IsCanceled)
+                            Login respuesta = new Login();
+
+                            respuesta.Tipo = "Login";
+
+                            respuesta.token = "null";
+
+                            string serialize = JsonConvert.SerializeObject(respuesta);
+
+                            byte[] buffer = Encoding.UTF8.GetBytes(serialize);
+
+                            var a = e.AcceptSocket.SendAsync(new ArraySegment<byte>(buffer), SocketFlags.None);
+
+                            a.ContinueWith(t =>
                             {
-                            // Manejar la desconexión aquí
-                            Info("Error al enviar datos al cliente: " + t.Exception.Message);
-                                e.AcceptSocket.Close();
-                            }
-                        });
+                                if (t.IsFaulted || t.IsCanceled)
+                                {
+                                    // Manejar la desconexión aquí
+                                    Info("Error al enviar datos al cliente: " + t.Exception.Message);
+                                    e.AcceptSocket.Close();
+                                }
+                            });
+
+                        }
 
                     }
 
+                    e.AcceptSocket.ReceiveAsync(e);
                 }
-                e.AcceptSocket.ReceiveAsync(e);
-            }
-            else
+                else
+                {
+
+                    foreach (var a in Clientes.ToList())
+                    {
+
+                        if (a.Result.RemoteEndPoint == e.AcceptSocket.RemoteEndPoint)
+                        {
+
+
+                            Clientes.Remove(a);
+                            Info("Se desconecto el cliente desde :" + e.RemoteEndPoint.ToString());
+                            e.AcceptSocket.Close();
+                        }
+                    }
+
+                    foreach (var ad in usuariosactivos.ToList())
+                    {
+                        if (ad.IP == e.RemoteEndPoint.ToString())
+                        {
+                            Connec(ad, false);
+                            usuariosactivos.Remove(ad);
+
+
+                        }
+                    }
+
+                }
+            }catch(Exception ex)
             {
-     
-                foreach (var a in Clientes.ToList()) {
 
-                    if (a.Result.RemoteEndPoint == e.AcceptSocket.RemoteEndPoint) {
-                        Clientes.Remove(a);
-                        Info("Se desconecto el cliente desde :"+ e.RemoteEndPoint.ToString());
-                        e.AcceptSocket.Close();
-                    }
-                }
             }
+
+            
          
-
-
         }
         public void Info(string message) {
             evento?.Invoke(message);
+        }
+        public void Connec(User usario,bool real)
+        {
+            PlayerConnecte?.Invoke(usario, real);
         }
         async Task IniciarServer(){
 

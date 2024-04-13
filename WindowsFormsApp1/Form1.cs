@@ -14,6 +14,7 @@ namespace WindowsFormsApp1
     {
         private Antihookclient.AntiHookClient anthook;
         private Task conectar;
+     
         public Form1()
         {
             InitializeComponent();
@@ -26,19 +27,73 @@ namespace WindowsFormsApp1
 
         private void Button1_Click(object sender, EventArgs e)
         {
-
             panel1.Controls.Clear();
-            if (anthook == null)
-            {
-                anthook = new Antihookclient.AntiHookClient();
-                anthook.OnConnects += Anthook_OnConnects;
-                anthook.OnserversGet += Anthook_OnserversGet;
-            }
 
-            Task ad = Task.Run(async () =>
-            {             
-                await anthook.Connect(textBox1.Text, textBox2.Text, textBox3.Text);
-            });
+            conectar = new Task(async () =>
+            {
+
+                if (anthook == null)
+                {
+                    anthook = new Antihookclient.AntiHookClient();
+                    anthook.OnConnects += Anthook_OnConnects;
+                    anthook.OnserversGet += Anthook_OnserversGet;
+                }
+            
+
+                if (button1.InvokeRequired)
+                {
+                    button1.Invoke(new Action(() =>
+                    {
+                        button1.Enabled = false;
+                    }));
+                }
+                    string server = textBox1.Text;
+              
+                    var a = await anthook.Connect(server, textBox2.Text, textBox3.Text);
+
+                    if (!a)
+                    {
+                        if (button1.InvokeRequired)
+                        {
+
+                            button1.Invoke(new Action(() =>
+                            {
+                                button1.Enabled = true;
+                            }));
+                        }
+
+                        else {
+                            button1.Invoke(new Action(() =>
+                            {
+                                button1.Enabled = true;
+                            }));
+                        }
+                        MessageBox.Show("Error no se encuentra servidor");
+                        conectar=null;
+
+
+
+                    }
+                    if(panel1.Controls.Count == 0)
+                {
+                    if (button1.InvokeRequired)
+                    {
+
+                        button1.Invoke(new Action(() =>
+                        {
+                            button1.Enabled = true;
+                        }));
+                    }
+                }
+
+
+                });
+
+
+
+            conectar.Start();
+              
+         
         }
 
         
@@ -130,7 +185,10 @@ namespace WindowsFormsApp1
 
         private void Form1_Load(object sender, EventArgs e)
         {
-           
+            var a =  BF3AntiHOOK.ConfigFile.LoadConfig();
+            textBox1.Text = a.server;
+            textBox2.Text = a.username;
+            textBox3.Text = a.password;
         }
 
         private void TextBox1_TextChanged(object sender, EventArgs e)
@@ -140,7 +198,7 @@ namespace WindowsFormsApp1
 
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
-            
+            BF3AntiHOOK.ConfigFile.SaveConfig(textBox2.Text, textBox1.Text, textBox3.Text);
             Process[] localProcess = Process.GetProcesses();
 
             foreach (Process process in localProcess)
@@ -156,6 +214,7 @@ namespace WindowsFormsApp1
         private void Button2_Click(object sender, EventArgs e)
         {
             panel1.Controls.Clear();
+
             Task ad = Task.Run(async () =>
             {
                 await anthook.Connect(textBox1.Text, textBox2.Text, textBox3.Text);

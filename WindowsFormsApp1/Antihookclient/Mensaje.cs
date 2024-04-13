@@ -6,12 +6,18 @@ using System.Threading.Tasks;
 
 namespace BF3AntiHook.BF3AntiHook
 {
-    class Mensaje
+    public class Mensaje
     {
         public string Tipo { get; set; }
 
+
+        public string version { get; set; }
+
         public string token { get; set; }
 
-        
+        public Mensaje()
+        {
+            version = "1.0.0";
+        }
     }
 }
