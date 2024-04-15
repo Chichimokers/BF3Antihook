@@ -1,0 +1,458 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>PreEmptive.Attributes</name>
+    </assembly>
+    <members>
+        <member name="T:PreEmptive.Attributes.RuntimeCheckAttribute">
+            <summary>
+            The RuntimeCheckAttribute is the abstract base class of attributes 
+            which indicate to Dotfuscator where a Check should be injected. 
+            It defines properties common to Checks, such as Actions and 
+            Application Notification. Each particular derived class determines 
+            the kind of check that will be injected.
+            
+            For historical reasons, ShelfLifeCheckAttribute does not derive from this class.
+            
+            For more information, see the Dotfuscator User Guide.
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.RuntimeCheckAttribute.ApplicationNotificationSinkElement">
+            <summary>
+            Indicates how to notify the application of the result of the Check, 
+            at the time that the attributed method is called.
+            
+            If this property is set, ApplicationNotificationSinkName must be set to 
+            indicate the name of the method, field, property, or argument to the attributed 
+            method that will be used to notify the application.
+            
+            If this property is set to SinkElements.Method, SinkElements.Field, 
+            SinkElements.Property, or SinkElements.Delegate, then ApplicationNotificationSinkOwner 
+            may be set as well. If it is not set, Dotfuscator will search the for the Sink on 
+            the type defining the attributed method.
+            
+            If this property is set to SinkElements.DefaultAction, Dotfuscator will error during processing, 
+            as that value is not defined for Checks that derive from this class.
+            
+            If this property is not set, or is set to None, Dotfuscator will not generate code 
+            that notifies the application of the check's result.
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.RuntimeCheckAttribute.ApplicationNotificationSinkName">
+            <summary>
+            The name of the method, field, property, or argument to the attributed method 
+            that will be used to notify the application of the result of the runtime check, 
+            at the time that the attributed method is called.
+            
+            If this property is set, ApplicationNotificationSinkElement is required to be set as well.
+            
+            If this property is not set, Dotfuscator will not generate code that
+            notifies the application of the check's result.
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.RuntimeCheckAttribute.ApplicationNotificationSinkOwner">
+            <summary>
+            Indicates the type that defines the method, field, property, or delegate 
+            specified by ApplicationNotificationSinkName.
+            
+            If it is not set, Dotfuscator will search for the Sink on the type 
+            defining the attributed method.
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.RuntimeCheckAttribute.Action">
+            <summary>
+            Indicates what predefined Action the application should take in the event of a runtime check 
+            resulting in a true value (e.g., when a Debug Check detects the application is being debugged).
+            
+            If an ApplicationNotificationSinkElement is also specified, the Sink will be called before 
+            this predefined Action is taken.
+            
+            By default, this is set to CheckAction.None, which performs no action.
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.RuntimeCheckAttribute.ActionProbability">
+            <summary>
+            Indicates the probability of the specified Action occurring if the Check results in a true value. 
+            It should be a decimal number between 0.00 (never take action) and 1.00 (always take action).
+            
+            For example, a value of 0.50 indicates a 50% chance of the Action executing, 
+            while a value of 0.83 would indicate a 83% chance of it executing.
+            
+            By default, this is set to 1.00 (i.e., the Action always occurs if the Check detects its condition).
+            </summary>
+        </member>
+        <member name="T:PreEmptive.Attributes.DebuggingCheckAttribute">
+            <summary>
+            Dotfuscator will insert Debug Check code into any method with this attribute. 
+            At runtime, the Debug Check code can invoke custom code in your application or invoke 
+            predefined code actions that do things such as simply exiting the application, 
+            hanging the application, or throwing an exception.
+            
+            Dotfuscator will remove this custom attribute from the metadata after injecting the Check code.
+            
+            For more information, see the Dotfuscator User Guide.
+            </summary>
+        </member>
+        <member name="T:PreEmptive.Attributes.TamperCheckAttribute">
+            <summary>
+            Dotfuscator will insert Tamper Check code into any method with this attribute.
+            
+            Using the ApplicationNotification properties, the developer can optionally specify a way for the tamper detection code to tell the application that a tamper has been detected.
+            
+            Dotfuscator will remove this custom attribute from the metadata after injecting the Check code.
+            
+            For more information, see the Dotfuscator User Guide.
+            </summary>
+        </member>
+        <member name="T:PreEmptive.Attributes.RootCheckAttribute">
+            <summary>
+            Dotfuscator will insert Root Check code into any method with this attribute.
+            At runtime, the Root Check code can invoke custom code in your application or invoke
+            predefined code actions that do things such as simply exiting the application, 
+            hanging the application, or throwing an exception.
+            
+            Dotfuscator will remove this custom attribute from the metadata after injecting the Check Code.
+            
+            For more information, see the Dotfuscator User Guide.
+            </summary>
+        </member>
+        <member name="T:PreEmptive.Attributes.ShelfLifeCheckAttribute">
+            <summary>
+            Dotfuscator will insert Shelf Life Check code into any method with this attribute.
+            
+            Using the Notification properties, the developer can optionally specify a way for the application to issue expiration/warning message.
+            
+            Dotfuscator will remove this custom attribute from the metadata after injecting the Check code.
+            
+            For more information, see the Dotfuscator User Guide.
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.ShelfLifeCheckAttribute.ActivationKeyFile">
+            <summary>
+            The Shelf Life Activate Key (SLAK) is be issued by PreEmptive and is required to use Shelf Life functionality.
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.ShelfLifeCheckAttribute.PrivateKeyFile">
+            <summary>
+            Optional user-supplied private key file.
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.ShelfLifeCheckAttribute.PrivateKeyFilePassword">
+            <summary>
+            Password for user-supplied private key file.
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.ShelfLifeCheckAttribute.ExpirationDate">
+            <summary>
+            Expiration date.  
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.ShelfLifeCheckAttribute.WarningDate">
+            <summary>
+            Warning date.  
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.ShelfLifeCheckAttribute.WarningNotificationSinkName">
+            <summary>
+            The name of the static property, static field, or static method to set or call.  
+            If this property is set, WarningNotificationSinkElement is required to be set as well. 
+            If this property is not set, Dotfuscator will not generate code that notifies the application.
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.ShelfLifeCheckAttribute.WarningNotificationSinkElement">
+            <summary>
+            Indicates how to notify the application in the event of a Shelf Life warning, at the time that the attributed method is called 
+            (e.g. a writable static, boolean field, settable static Boolean property, or a static void( boolean ) method to call). 
+            To use this property, WarningNotificationSinkName must also be set. If WarningNotificationSinkElement is a 
+            static field or property, WarningNotificationSinkOwner must also be set.
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.ShelfLifeCheckAttribute.WarningNotificationSinkOwner">
+            <summary>
+            WarningNotificationSinkOwner indicates the name of the type that defines the WarningNotificationSink method, field, or property. 
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.ShelfLifeCheckAttribute.ExpirationNotificationSinkName">
+            <summary>
+            The name of the static property, static field, or static method to set or call.  
+            If this property is set, ExpirationNotificationSinkElement is required to be set as well. 
+            If this property is not set, Dotfuscator will not generate code that notifies the application.
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.ShelfLifeCheckAttribute.ExpirationNotificationSinkElement">
+            <summary>
+            Indicates how to notify the application in the event of a Shelf Life expiration, at the time that the attributed method is called 
+            (e.g. a writable static, boolean field, settable static Boolean property, or a static void( boolean ) method to call). 
+            To use this property, ExpirationNotificationSinkName must also be set. If ExpirationNotificationSinkElement is a 
+            static field or property, ExpirationNotificationSinkOwner must also be set.
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.ShelfLifeCheckAttribute.ExpirationNotificationSinkOwner">
+            <summary>
+            ExpirationNotificationSinkOwner indicates the name of the type that defines the ExpirationNotificationSink method, field, or property. 
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.ShelfLifeCheckAttribute.ShelfLifeTokenSourceName">
+            <summary>
+            The name of the static property, static field, or method parameter that will contain a Shelf Life Token string at runtime.
+            If this property is set, ShelfLifeTokenSourceElement is required to be set as well.  If this property is not set, Dotfuscator will
+            inject a token string generated from the Shelf Life Activation Key at Dotfuscation time.
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.ShelfLifeCheckAttribute.ShelfLifeTokenSourceElement">
+            <summary>
+            Indicates how to access the ShelfLifeTokenSource at runtime(e.g. a static field, static property, or method parameter).
+            To use this property, ShelfLifeTokenSourceName must also be set.  If ShelfLifeTokenSourceElement is a static field or property, ShelfLifeTokenSourceOwner must also be set.
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.ShelfLifeCheckAttribute.ShelfLifeTokenSourceOwner">
+            <summary>
+            If the ShelfLifeTokenSourceElement is a static field or static property, ShelfLifeTokenSourceOwner indicates the name of the type that defines the field or property.
+            </summary>
+        </member>
+        <member name="T:PreEmptive.Attributes.SourceElements">
+            <summary>
+            Possible sources for data meant to be consumed by Checks.  Examples include the Shelf Life Token specified in the ShelfLifeCheckAttribute.
+            
+            </summary>
+        </member>
+        <member name="F:PreEmptive.Attributes.SourceElements.None">
+            <summary>
+            No source element.  This is the default value.
+            </summary>
+        </member>
+        <member name="F:PreEmptive.Attributes.SourceElements.MethodArgument">
+            <summary>
+            The source element is a method argument.
+            </summary>
+            
+        </member>
+        <member name="F:PreEmptive.Attributes.SourceElements.Field">
+            <summary>
+            The source element is a field.
+            </summary>
+            
+        </member>
+        <member name="F:PreEmptive.Attributes.SourceElements.Property">
+            <summary>
+            The source element is a property.
+            </summary>
+        </member>
+        <member name="F:PreEmptive.Attributes.SourceElements.Method">
+            <summary>
+            The source element is a method to be called.
+            </summary>
+        </member>
+        <member name="F:PreEmptive.Attributes.SourceElements.DefaultAction">
+            <summary>
+            The default action should be executed. The default action will vary depending on the attribute property in question. See the Dotfuscator User Guide for more information.
+            </summary>
+        </member>
+        <member name="T:PreEmptive.Attributes.SinkElements">
+            <summary>
+            Possible sinks for notifications from Checks. Examples include the application tamper notification specified in the TamperCheckAttribute.
+            
+            </summary>
+        </member>
+        <member name="F:PreEmptive.Attributes.SinkElements.None">
+            <summary>
+            No sink element.
+            </summary>
+        </member>
+        <member name="F:PreEmptive.Attributes.SinkElements.Method">
+            <summary>
+            The sink element that is a method to be called.
+            </summary>
+            
+        </member>
+        <member name="F:PreEmptive.Attributes.SinkElements.Field">
+            <summary>
+            The sink element is a field to be set.
+            </summary>
+            
+        </member>
+        <member name="F:PreEmptive.Attributes.SinkElements.Property">
+            <summary>
+            The sink element is a property to be set.
+            </summary>
+        </member>
+        <member name="F:PreEmptive.Attributes.SinkElements.MethodArgument">
+            <summary>
+            The sink element is a method argument that specifies a delegate to invoke.
+            </summary>
+        </member>
+        <member name="F:PreEmptive.Attributes.SinkElements.Delegate">
+            <summary>
+            The sink element is a delegate that should be invoked.
+            </summary>
+        </member>
+        <member name="F:PreEmptive.Attributes.SinkElements.DefaultAction">
+            <summary>
+            The default action should be executed. The default action will vary depending on the attribute property in question. See the Dotfuscator User Guide for more information.
+            </summary>
+        </member>
+        <member name="T:PreEmptive.Attributes.CheckAction">
+            <summary>
+            Possible pre-defined actions for Dotfuscator-generated code to take if a runtime check condition (such as tamper or debug) is detected.
+            It is used in RuntimeCheckAttribute (and its concrete derivations including TamperCheckAttribute).
+            </summary>
+        </member>
+        <member name="F:PreEmptive.Attributes.CheckAction.None">
+            <summary>
+            No pre-defined action will be taken if the runtime check behavior is detected.
+            </summary>
+        </member>
+        <member name="F:PreEmptive.Attributes.CheckAction.Exit">
+            <summary>
+            The application will immediately exit if the runtime check behavior is detected.
+            </summary>
+        </member>
+        <member name="F:PreEmptive.Attributes.CheckAction.Exception">
+            <summary>
+            The application will throw an exception if the runtime check behavior is detected.
+            </summary>
+        </member>
+        <member name="F:PreEmptive.Attributes.CheckAction.Hang">
+            <summary>
+            The current application thread will hang if the runtime check behavior is detected.
+            </summary>
+        </member>
+        <member name="T:PreEmptive.Attributes.InsertTamperCheckAttribute">
+            <summary>
+            Dotfuscator will insert Tamper Check code into any method with this attribute.
+            
+            Using the ApplicationNotification properties, the developer can optionally specify a way for the tamper detection code to tell the application that a tamper has been detected.
+            
+            Dotfuscator will remove this custom attribute from the metadata after injecting the Check code.
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.InsertTamperCheckAttribute.ApplicationNotificationSinkName">
+            <summary>
+            The name of the static property, static field, or static method to set or call when a tamper is detected.  
+            If this property is set, ApplicationNotificationSinkElement is required to be set as well. 
+            If this property is not set, Dotfuscator will not generate code that notifies the application of a tamper.
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.InsertTamperCheckAttribute.ApplicationNotificationSinkElement">
+            <summary>
+            Indicates how to notify the application in the event of a tamper detection, at the time that the attributed method is called 
+            (e.g. a writable static, boolean field, settable static Boolean property, or a static void( boolean ) method to call). 
+            To use this property, ApplicationNotificationSinkName must also be set. If ApplicationNotificationSinkElement is a 
+            static field or property, ApplicationNotificationSinkOwner must also be set.
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.InsertTamperCheckAttribute.ApplicationNotificationSinkOwner">
+            <summary>
+            ApplicationNotificationSinkOwner indicates the name of the type that defines the ApplicationNotificationSink method, field, or property. 
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.InsertTamperCheckAttribute.Action">
+            <summary>
+            Indicates what predefined action the application should take in the event of a tamper detection, at the time that the 
+            attributed method is called (e.g. exit, hang, throw an exception, do nothing).
+            
+            If an ApplicationNotificationSinkElement is also specified, it will be called before this predefined action is taken.
+            
+            By default, this is set to CheckAction.None.
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.InsertTamperCheckAttribute.ActionProbability">
+            <summary>
+            Indicates the probability of the specified CheckAction occurring. It should be a decimal number between 0.00 (never) and 1.00 (always).
+            For example, a value of 0.50 indicates a 50% chance of the CheckAction executing, while a value of 0.83 would indicate a 83% chance of it executing.
+            </summary>
+        </member>
+        <member name="T:PreEmptive.Attributes.InsertShelfLifeAttribute">
+            <summary>
+            Dotfuscator will insert Shelf Life checking code into any method with this attribute.
+            
+            Using the Notification properties, the developer can optionally specify a way for the application to issue expiration/warning message.  
+            
+            Dotfuscator will remove this custom attribute from the metadata after injecting the Check code.
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.InsertShelfLifeAttribute.ActivationKeyFile">
+            <summary>
+            The Shelf Life Activate Key (SLAK) is issued by PreEmptive and is required to use Shelf Life functionality.
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.InsertShelfLifeAttribute.PrivateKeyFile">
+            <summary>
+            Optional user-supplied private key file.
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.InsertShelfLifeAttribute.PrivateKeyFilePassword">
+            <summary>
+            Password for user-supplied private key file.
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.InsertShelfLifeAttribute.ExpirationDate">
+            <summary>
+            Expiration date.  
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.InsertShelfLifeAttribute.WarningDate">
+            <summary>
+            Warning date.  
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.InsertShelfLifeAttribute.WarningNotificationSinkName">
+            <summary>
+            The name of the static property, static field, or static method to set or call.  
+            If this property is set, WarningNotificationSinkElement is required to be set as well. 
+            If this property is not set, Dotfuscator will not generate code that notifies the application.
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.InsertShelfLifeAttribute.WarningNotificationSinkElement">
+            <summary>
+            Indicates how to notify the application in the event of a Shelf Life warning, at the time that the attributed method is called 
+            (e.g. a writable static, boolean field, settable static Boolean property, or a static void( boolean ) method to call). 
+            To use this property, WarningNotificationSinkName must also be set. If WarningNotificationSinkElement is a 
+            static field or property, WarningNotificationSinkOwner must also be set.
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.InsertShelfLifeAttribute.WarningNotificationSinkOwner">
+            <summary>
+            WarningNotificationSinkOwner indicates the name of the type that defines the WarningNotificationSink method, field, or property. 
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.InsertShelfLifeAttribute.ExpirationNotificationSinkName">
+            <summary>
+            The name of the static property, static field, or static method to set or call.  
+            If this property is set, ExpirationNotificationSinkElement is required to be set as well. 
+            If this property is not set, Dotfuscator will not generate code that notifies the application.
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.InsertShelfLifeAttribute.ExpirationNotificationSinkElement">
+            <summary>
+            Indicates how to notify the application in the event of a Shelf Life expiration, at the time that the attributed method is called 
+            (e.g. a writable static, boolean field, settable static Boolean property, or a static void( boolean ) method to call). 
+            To use this property, ExpirationNotificationSinkName must also be set. If ExpirationNotificationSinkElement is a 
+            static field or property, ExpirationNotificationSinkOwner must also be set.
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.InsertShelfLifeAttribute.ExpirationNotificationSinkOwner">
+            <summary>
+            ExpirationNotificationSinkOwner indicates the name of the type that defines the ExpirationNotificationSink method, field, or property. 
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.InsertShelfLifeAttribute.ShelfLifeTokenSourceName">
+            <summary>
+            The name of the static property, static field, or method parameter that will contain a Shelf Life Token string at runtime.
+            If this property is set, ShelfLifeTokenSourceElement is required to be set as well.  If this property is not set, Dotfuscator will
+            inject a token string generated from the Shelf Life Activation Key at Dotfuscation time.
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.InsertShelfLifeAttribute.ShelfLifeTokenSourceElement">
+            <summary>
+            Indicates how to access the ShelfLifeTokenSource at runtime(e.g. a static field, static property, or method parameter).
+            To use this property, ShelfLifeTokenSourceName must also be set.  If ShelfLifeTokenSourceElement is a static field or property, ShelfLifeTokenSourceOwner must also be set.
+            </summary>
+        </member>
+        <member name="P:PreEmptive.Attributes.InsertShelfLifeAttribute.ShelfLifeTokenSourceOwner">
+            <summary>
+            If the ShelfLifeTokenSourceElement is a static field or static property, ShelfLifeTokenSourceOwner indicates the name of the type that defines the field or property.
+            </summary>
+        </member>
+    </members>
+</doc>

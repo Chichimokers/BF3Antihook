@@ -77,6 +77,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BF3AntiHook\AntiHookServer.cs" />
+    <Compile Include="BF3AntiHook\ConfigClass.cs" />
     <Compile Include="BF3AntiHook\GetServers.cs" />
     <Compile Include="BF3AntiHook\Helper.cs" />
     <Compile Include="BF3AntiHook\Login.cs" />
