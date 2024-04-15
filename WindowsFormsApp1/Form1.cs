@@ -186,7 +186,7 @@ namespace WindowsFormsApp1
 
         private void Item_cliekado(BF3AntiHook.BF3AntiHook.Servers a)
         {
-            this.Hide();
+         
             Task  asd = Task.Run(async () => await anthook.RunBf3(a));
 
           
