@@ -33,8 +33,8 @@ namespace BF3AntiHook
         private void button1_Click(object sender, EventArgs e)
         {
             
-            server = new BF3AntiHook.AntiHookServer(Convert.ToInt32(textBox1.Text), Server_evento,"bf4","bf","127.0.0.1",3306,"bf4");
-            //server = new BF3AntiHook.AntiHookServer(Convert.ToInt32(textBox1.Text), Server_evento, "root", "bf", "127.0.0.1", 3306, "");
+            //server = new BF3AntiHook.AntiHookServer(Convert.ToInt32(textBox1.Text), Server_evento,"bf4","bf","127.0.0.1",3306,"bf4");
+            server = new BF3AntiHook.AntiHookServer(Convert.ToInt32(textBox1.Text), Server_evento, "root", "bf", "127.0.0.1", 3306, "");
             server.PlayerConnecte += Server_PlayerConnecte;
             server.Start();
         }
