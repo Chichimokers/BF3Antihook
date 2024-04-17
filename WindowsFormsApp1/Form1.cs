@@ -14,7 +14,7 @@ namespace WindowsFormsApp1
     {
         private Antihookclient.AntiHookClient anthook;
         private Task conectar;
-     
+
         public Form1()
         {
             InitializeComponent();
@@ -27,6 +27,7 @@ namespace WindowsFormsApp1
 
         private void Button1_Click(object sender, EventArgs e)
         {
+
             panel1.Controls.Clear();
 
             conectar = new Task(async () =>
@@ -36,9 +37,10 @@ namespace WindowsFormsApp1
                 {
                     anthook = new Antihookclient.AntiHookClient();
                     anthook.OnConnects += Anthook_OnConnects;
+                    anthook.baneado += Anthook_baneado;
                     anthook.OnserversGet += Anthook_OnserversGet;
                 }
-            
+
 
                 if (button1.InvokeRequired)
                 {
@@ -47,34 +49,35 @@ namespace WindowsFormsApp1
                         button1.Enabled = false;
                     }));
                 }
-                    string server = textBox1.Text;
-              
-                    var a = await anthook.Connect(server, textBox2.Text, textBox3.Text);
+                string server = textBox1.Text;
 
-                    if (!a)
+                var a = await anthook.Connect(server, textBox2.Text, textBox3.Text);
+
+                if (!a)
+                {
+                    if (button1.InvokeRequired)
                     {
-                        if (button1.InvokeRequired)
+
+                        button1.Invoke(new Action(() =>
                         {
-
-                            button1.Invoke(new Action(() =>
-                            {
-                                button1.Enabled = true;
-                            }));
-                        }
-
-                        else {
-                            button1.Invoke(new Action(() =>
-                            {
-                                button1.Enabled = true;
-                            }));
-                        }
-                        MessageBox.Show("Error no se encuentra servidor");
-                        conectar=null;
-
-
-
+                            button1.Enabled = true;
+                        }));
                     }
-                    if(panel1.Controls.Count == 0)
+
+                    else
+                    {
+                        button1.Invoke(new Action(() =>
+                        {
+                            button1.Enabled = true;
+                        }));
+                    }
+                    MessageBox.Show("Error no se encuentra servidor");
+                    conectar = null;
+
+
+
+                }
+                if (panel1.Controls.Count == 0)
                 {
                     if (button1.InvokeRequired)
                     {
@@ -87,16 +90,63 @@ namespace WindowsFormsApp1
                 }
 
 
-                });
+            });
 
 
 
             conectar.Start();
-              
-         
+
+
         }
 
+        private void Anthook_baneado()
+        {
+            if (panel1.InvokeRequired)
+            {
+                panel1.Invoke(new Action(() => { panel1.Controls.Clear(); }));
+            }
+
+            Process[] localProcess = Process.GetProcesses();
+
+            foreach (Process process in localProcess)
+            {
+                if (process.ProcessName.Trim().ToLower() == "LanBf3".Trim().ToLower())
+                {
+                    Process processa = new Process();
+                    processa.StartInfo = new ProcessStartInfo()
+                    {
+                        UseShellExecute = false,
+                        FileName = "cmd.exe",
+                        Arguments = "/C taskkill /F /PID " + process.Id
+                    };
+                    processa.Start();
+                }
+            }
+            this.Invoke(new Action(() =>
+            {
+
+
+                DialogResult dialogResult = MessageBox.Show("Has sido baneado por usar hacks contacte a los admins", "!!!ATENCION", MessageBoxButtons.OK, MessageBoxIcon.Question);
+
+                if (dialogResult == DialogResult.OK)
+                {
+
+                
+
+
+                }
+            }));
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new Action(() => { this.Close(); }));
+
+            }
+
+        }
+     
         
+        
+
         private void Anthook_OnserversGet(List<BF3AntiHook.BF3AntiHook.Servers> a)
         {
             int yPosition = 0;
@@ -136,6 +186,7 @@ namespace WindowsFormsApp1
 
         private void Item_cliekado(BF3AntiHook.BF3AntiHook.Servers a)
         {
+         
             Task  asd = Task.Run(async () => await anthook.RunBf3(a));
 
           
@@ -182,9 +233,17 @@ namespace WindowsFormsApp1
             }
 
         }
-
+        public void Asegurar()
+        {
+            var a  = Antihookclient.AntiHookClient.PreOpen();
+            if (a)
+            {
+                this.Close();
+            }
+        }
         private void Form1_Load(object sender, EventArgs e)
         {
+        Asegurar();
             var a =  BF3AntiHOOK.ConfigFile.LoadConfig();
             textBox1.Text = a.server;
             textBox2.Text = a.username;
@@ -204,12 +263,20 @@ namespace WindowsFormsApp1
             foreach (Process process in localProcess)
             {
                 if (process.ProcessName == "LanBf3")
-                {     
-                    process.Kill();
+                {
+                    Process processa = new Process();
+                    processa.StartInfo = new ProcessStartInfo()
+                    {
+                        UseShellExecute = false,
+                        FileName = "cmd.exe",
+                        Arguments = "/C taskkill /F /PID " + process.Id
+                    };
+                    processa.Start();
                 }
             }
-            anthook.CloseAll();
+        
         }
+
 
         private void Button2_Click(object sender, EventArgs e)
         {
@@ -219,6 +286,27 @@ namespace WindowsFormsApp1
             {
                 await anthook.Connect(textBox1.Text, textBox2.Text, textBox3.Text);
             });
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            BF3AntiHOOK.ConfigFile.SaveConfig(textBox2.Text, textBox1.Text, textBox3.Text);
+            Process[] localProcess = Process.GetProcesses();
+
+            foreach (Process process in localProcess)
+            {
+                if (process.ProcessName == "LanBf3")
+                {
+                    Process processa = new Process();
+                    processa.StartInfo = new ProcessStartInfo()
+                    {
+                        UseShellExecute = false,
+                        FileName = "cmd.exe",
+                        Arguments = "/C taskkill /F /PID " + process.Id
+                    };
+                    processa.Start();
+                }
+            }
         }
     }
 }
